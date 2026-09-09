@@ -81,4 +81,115 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
         return true;
     }
 
+    fun remove(e : E) Boolean{
+        if (head != null) {        
+            if(head.value == e){
+                head = head.next
+                return true
+            }
+            var previousNode = head
+            var currentNode = head.next
+            while(currentNode != null){
+                if(currentNode.value == e){
+                    if(currentNode.next != null){
+                        previousNode.next = currentNode.next
+                    }else{
+                        previousNode.next = null
+                    }
+                    return true
+                }
+                previousNode = currentNode
+                currentNode = currentNode.next
+            }
+        }return false
+    }
+
+    fun remove(index : Int) Boolean{
+        if (head != null) {        
+            if(index == 0){
+                head = head.next
+                return true
+            }
+            Int counter = 0
+            var previousNode = head
+            var currentNode = head.next
+            while(currentNode != null){
+                if(counter == index){
+                    if(currentNode.next != null){
+                        previousNode.next = currentNode.next
+                    }else{
+                        previousNode.next = null
+                    }
+                    return true
+                }
+                previousNode = currentNode
+                currentNode = currentNode.next
+                counter++
+            }
+        }return false
+    }
+
+    fun clear() void{
+        head = null
+    }
+
+    fun get(index : Int) Boolean{
+        if (head != null) {        
+            if(index == 0){
+                return head
+            }
+            var currentNode = head.next
+            Int counter = 0
+            while(currentNode != null){
+                if(counter == index){
+                    return currentNode
+                }
+                currentNode = currentNode.next
+                counter++
+            }
+        }return null
+    }
+
+    fun set(index : Int, element : E) Node<E>{
+        if (head != null) {  
+            var infoToSave      
+            if(index == 0){
+                infoToSave = head.value
+                head.value = element
+                return infoToSave
+            }
+            var currentNode = head.next
+            Int counter = 0
+            while(currentNode != null){
+                if(counter == index){
+                    infoToSave = currentNode.value
+                    currentNode.value = element
+                    return infoToSave
+                }
+                currentNode = currentNode.next
+                counter++
+            }
+        }return null
+    }
+
+    fun add (index : Int, element : E) Boolean{
+        if(head != null){
+            val newNode : Node<E> = Node(e)
+            if(index == 0){
+                newNode.next = head
+            }
+            var previousNode = head
+            var currentNode = head.next
+            while(currentNode != null){
+                if(counter == index){
+                    previousNode.next = newNode
+                    newNode.next = currentNode
+                }
+                previousNode = currentNode
+                currentNode = currentNode.next
+                counter++
+            }
+        }return false
+    }
+
 }
