@@ -67,7 +67,7 @@ class SimpleList<E>(var head: Node<E>? = null) : MutableList<E> {
     }
 
     override fun addAll(index: Int, elements: Collection<E>): Boolean {
-        if (index < 0 || index > size) return false
+        if (index !in 0..size) return false
         if (elements.isEmpty()) return false
 
         var predecessor: Node<E>? = null
@@ -111,7 +111,7 @@ class SimpleList<E>(var head: Node<E>? = null) : MutableList<E> {
     }
 
     override fun add(index: Int, element: E) {
-        if (index < 0 || index > size) {
+        if (index !in 0..size) {
             throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
         val newNode = Node(element)
@@ -195,7 +195,7 @@ class SimpleList<E>(var head: Node<E>? = null) : MutableList<E> {
     override fun listIterator(): MutableListIterator<E> = listIterator(0)
 
     override fun listIterator(index: Int): MutableListIterator<E> {
-        if (index < 0 || index > size) {
+        if (index !in 0..size) {
             throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
         return object : MutableListIterator<E> {
@@ -236,7 +236,6 @@ class SimpleList<E>(var head: Node<E>? = null) : MutableList<E> {
                 if (lastReturnedIndex == -1) throw IllegalStateException()
                 this@SimpleList.set(lastReturnedIndex, element)
             }
-
             override fun add(element: E) {
                 this@SimpleList.add(currentIndex, element)
                 currentIndex++
@@ -250,7 +249,7 @@ class SimpleList<E>(var head: Node<E>? = null) : MutableList<E> {
             throw IndexOutOfBoundsException("fromIndex: $fromIndex, toIndex: $toIndex, Size: $size")
         }
         val result = SimpleList<E>()
-        for (i in fromIndex until toIndex) {
+        for (i in fromIndex..<toIndex) {
             result.add(get(i))
         }
         return result
