@@ -28,6 +28,39 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
         return false
     }
 
+    fun containsAll (c : Collection<*>) : Boolean {
+        val aux = c.toSet()
+        aux.forEach{
+            if(!contains(it)){
+                return false            
+            }    
+        }return true // se puede refactorizar con un c.all {contains(it)}
+    }
+
+    fun addAll (c : Collection<E>){
+        c.forEach{
+            add(it) 
+        }
+    }
+
+    fun addAll(index : Int, c : Collection<E>){
+        if(index == size()){
+            addAll(c)
+            return
+        }
+        var aux : SimpleList<E> = SimpleList()
+        var counter : Int = 0
+        while(counter < size()){
+            if(counter == index){
+                aux.addAll(c)
+            }
+            aux.add(this[counter])
+            counter++
+        }
+        clear()
+        addAll(aux)
+    }
+
     override fun iterator() : Iterator<E>{
         return object : Iterator<E> {
             var actual = head
@@ -129,7 +162,7 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
         }return false
     }
 
-    fun clear() void{
+    fun clear(){
         head = null
     }
 
