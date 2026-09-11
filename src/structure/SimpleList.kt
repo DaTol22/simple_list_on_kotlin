@@ -1,6 +1,6 @@
 package structure
 
-class SimpleList<E>(var head : Node<E>? = null, override val size: Int = 0) : Collection<E> {
+class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
 
     fun size(): Int{
         var current = head
@@ -17,10 +17,10 @@ class SimpleList<E>(var head : Node<E>? = null, override val size: Int = 0) : Co
         return head == null
     }
 
-    override fun contains(e: E) : Boolean{
+    fun contains(o: Any) : Boolean{
         var aux = head
         while(aux != null){
-            if (aux.value == e){
+            if (aux.value == o){
                 return true
             }
             aux = aux.next
@@ -28,14 +28,13 @@ class SimpleList<E>(var head : Node<E>? = null, override val size: Int = 0) : Co
         return false
     }
 
-    override fun containsAll (c : Collection<E>) : Boolean {
+    fun containsAll (c : Collection<*>) : Boolean {
         val aux = c.toSet()
         aux.forEach{
             if(!contains(it)){
                 return false            
             }    
-        }
-        return true // se puede refactorizar con un c.all {contains(it)}
+        }return true // se puede refactorizar con un c.all {contains(it)}
     }
 
     fun addAll (c : Collection<E>){
@@ -49,13 +48,13 @@ class SimpleList<E>(var head : Node<E>? = null, override val size: Int = 0) : Co
             addAll(c)
             return
         }
-        val aux : SimpleList<E> = SimpleList()
-        var counter = 0
+        var aux : SimpleList<E> = SimpleList()
+        var counter : Int = 0
         while(counter < size()){
             if(counter == index){
                 aux.addAll(c)
             }
-            aux.add(get(counter) as E)
+            aux.add(this[counter])
             counter++
         }
         clear()
@@ -317,6 +316,49 @@ class SimpleList<E>(var head : Node<E>? = null, override val size: Int = 0) : Co
         }
     }
 
+
+
+
+
+        }
+        return false
+    }
+
+    fun lastIndexOf(o : Any) : Int{
+        var counter = 0
+        var last = 0
+        while(counter < size()){
+            if(get(counter).value == o){
+                last = counter
+            }
+        }
+        return last
+    }
+
+    fun removeAll(c : Collection<E>) : Boolean{
+        var auxList : SimpleList
+        var aux = head
+        if(containsAll(c)){
+            while(aux != null){
+                if (!c.contains(aux)){
+                    auxList.add(aux)
+                }
+                aux = aux.next
+            }
+            clear()
+            addAll(auxList)
+            return true
+        }
+        return false
+    }
+
+    fun subList (int beginning, end : Int) : SimpleList<E>{
+        var auxList : SimpleList
+        for(int i = beginnig; i < end - 1; i++){
+            auxList.add(get(i))
+        }
+        return auxList
+    }
 
 
 
