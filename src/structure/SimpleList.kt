@@ -54,7 +54,7 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
             if(counter == index){
                 aux.addAll(c)
             }
-            aux.add(this[counter])
+            aux.add(get(counter))
             counter++
         }
         clear()
@@ -180,7 +180,8 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
                 currentNode = currentNode.next
                 counter++
             }
-        }return null
+        }
+        return null
     }
 
     fun set(index : Int, element : E) Node<E>{
@@ -202,7 +203,8 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
                 currentNode = currentNode.next
                 counter++
             }
-        }return null
+        }
+        return null
     }
 
     fun add (index : Int, element : E) Boolean{
@@ -222,7 +224,40 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
                 currentNode = currentNode.next
                 counter++
             }
-        }return false
+        }
+        return false
     }
+
+    fun lastIndexOf(o : Any) : Int{
+        var counter = 0
+        var last = 0
+        while(counter < size()){
+            if(get(counter).value == o){
+                last = counter                
+            }
+        }
+        return last
+    }
+
+    fun removeAll(c : Collection<E>) : Boolean{
+        var auxList : SimpleList
+        var aux = head
+        if(containsAll(c)){
+            while(aux != null){
+                if (!c.contains(aux)){
+                    auxList.add(aux)
+                }
+                aux = aux.next
+            }
+            clear()
+            addAll(auxList)
+            return true
+        }
+        return false
+
+
+    }
+
+    
 
 }
