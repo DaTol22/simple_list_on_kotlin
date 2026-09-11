@@ -254,8 +254,14 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
             return true
         }
         return false
+    }
 
-
+    fun subList (int beginning, end : Int) : SimpleList<E>{
+        var auxList : SimpleList
+        for(int i = beginnig; i < end - 1; i++){
+            auxList.add(get(i))
+        }
+        return auxList
     }
 
     
