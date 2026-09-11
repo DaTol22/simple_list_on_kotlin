@@ -1,252 +1,163 @@
 package structure
 
-class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
+class SimpleList<E>(var head: Node<E>? = null) : MutableList<E> {
 
-    fun size(): Int{
-        var current = head
-        var count = 0
-        while (current != null) {
-            count++
-            current = current.next
-        }
-        return count
-    }
+    override val size: Int
+        get() = nodeSequence().count()
 
-
-    override fun isEmpty() : Boolean{
+    override fun isEmpty(): Boolean {
         return head == null
     }
 
-    fun contains(o: Any) : Boolean{
-        var aux = head
-        while(aux != null){
-            if (aux.value == o){
+    override fun contains(element: E): Boolean {
+        return nodeSequence().any { it.value == element }
+    }
+
+    override fun containsAll(elements: Collection<E>): Boolean {
+        return elements.all { contains(it) }
+    }
+
+    // TODO COMENTARIO PARA ENTENDER LOS HELPERS (nos ahorraron el uso de whiles en varois métodos)
+    // Helpers privados: centralizan el recorrido de la lista enlazada
+    // para no repetir el mismo while en cada método.
+
+    private fun nodeSequence(): Sequence<Node<E>> = generateSequence(head) { it.next }
+
+    private fun nodeAt(index: Int): Node<E>? = nodeSequence().elementAtOrNull(index)
+
+
+    override fun iterator(): MutableIterator<E> = listIterator()
+
+    override fun add(element: E): Boolean {
+        val newNode = Node(element)
+        val last = nodeSequence().lastOrNull()
+        if (last == null) {
+            head = newNode
+        } else {
+            last.next = newNode
+        }
+        return true
+    }
+
+    override fun remove(element: E): Boolean {
+        if (head == null) return false
+        if (head!!.value == element) {
+            head = head!!.next
+            return true
+        }
+        var previous = head
+        var current = head!!.next
+        while (current != null) {
+            if (current.value == element) {
+                previous!!.next = current.next
                 return true
             }
-            aux = aux.next
+            previous = current
+            current = current.next
         }
         return false
     }
 
-    fun containsAll (c : Collection<*>) : Boolean {
-        val aux = c.toSet()
-        aux.forEach{
-            if(!contains(it)){
-                return false            
-            }    
-        }return true // se puede refactorizar con un c.all {contains(it)}
+    override fun addAll(elements: Collection<E>): Boolean {
+        var changed = false
+        elements.forEach {
+            if (add(it)) changed = true
+        }
+        return changed
     }
 
-    fun addAll (c : Collection<E>){
-        c.forEach{
-            add(it) 
-        }
-    }
+    override fun addAll(index: Int, elements: Collection<E>): Boolean {
+        if (index < 0 || index > size) return false
+        if (elements.isEmpty()) return false
 
-    fun addAll(index : Int, c : Collection<E>){
-        if(index == size()){
-            addAll(c)
-            return
-        }
-        var aux : SimpleList<E> = SimpleList()
-        var counter : Int = 0
-        while(counter < size()){
-            if(counter == index){
-                aux.addAll(c)
-            }
-            aux.add(this[counter])
+        var predecessor: Node<E>? = null
+        var successor = head
+        var counter = 0
+        while (counter < index) {
+            predecessor = successor
+            successor = successor?.next
             counter++
         }
-        clear()
-        addAll(aux)
+
+        var current = predecessor
+        for (element in elements) {
+            val newNode = Node(element)
+            if (current == null) {
+                head = newNode
+            } else {
+                current.next = newNode
+            }
+            current = newNode
+        }
+        current?.next = successor
+        return true
     }
 
-    override fun iterator() : Iterator<E>{
-        return object : Iterator<E> {
-            var actual = head
-            override fun hasNext(): Boolean {
-                return actual != null
-            }
-            override fun next(): E {
-                val curr = actual ?: throw NoSuchElementException()
-                actual = curr.next
-                return curr.value
-            }
-        }
-    }
-
-    fun toArray(): Array<Any?> {
-        var aux = head
-        return Array(size()) {
-            val value = aux?.value
-            aux = aux?.next
-            value
-        }
-    }
-
-    inline fun <reified E> toArray(a: Array<E>): Array<E> {
-        val currentSize = size
-        val result = if (a.size < currentSize) arrayOfNulls<E>(currentSize) as Array<E> else a
-        var aux = head
-        var i = 0
-        while (aux != null && i < currentSize) {
-            result[i++] = aux.value as E
-            aux = aux.next
-        }
-        if (result.size > currentSize) {
-            (result as Array<E?>)[currentSize] = null
-        }
-        return result
-    }
-
-    fun add(e : E) : Boolean {
-        val newNode : Node<E> = Node(e)
-        if (head == null) {
-            head = newNode
-        }
-        else{
-            var aux = head
-            while(aux?.next != null){
-                aux = aux.next
-            }
-            aux!!.next = newNode
-        }
-        return true;
-    }
-
-    fun remove(e : E) : Boolean{
-        if (head != null) {        
-            if(head!!.value == e){
-                head = head!!.next
-                return true
-            }
-            var previousNode = head
-            var currentNode = head!!.next
-            while(currentNode != null){
-                if(currentNode.value == e){
-                    if(currentNode.next != null){
-                        previousNode!!.next = currentNode.next
-                    }else{
-                        previousNode!!.next = null
-                    }
-                    return true
-                }
-                previousNode = currentNode
-                currentNode = currentNode.next
-            }
-        }
-        return false
-    }
-
-    fun remove(index : Int) : Boolean{
-        if (head != null) {        
-            if(index == 0){
-                head = head!!.next
-                return true
-            }
-            var counter = 0
-            var previousNode = head
-            var currentNode = head!!.next
-            while(currentNode != null){
-                if(counter == index){
-                    if(currentNode.next != null){
-                        previousNode!!.next = currentNode.next
-                    }else{
-                        previousNode!!.next = null
-                    }
-                    return true
-                }
-                previousNode = currentNode
-                currentNode = currentNode.next
-                counter++
-            }
-        }
-        return false
-    }
-
-    fun clear(){
+    override fun clear() {
         head = null
     }
 
-    fun get(index : Int) : E? {
-        if (head != null) {        
-            if(index == 0){
-                return head!!.value
-            }
-            var currentNode = head!!.next
-            var counter = 0
-            while(currentNode != null){
-                if(counter == index){
-                    return currentNode!!.value
-                }
-                currentNode = currentNode.next
-                counter++
-            }
-        }
-        return null
+    override fun get(index: Int): E {
+        return nodeAt(index)?.value
+            ?: throw IndexOutOfBoundsException("Index: $index, Size: $size")
     }
 
-    fun set(index : Int, element : E) {
-        if (head != null) {  
-            var infoToSave : E
-            if(index == 0){
-                infoToSave = head!!.value
-                head!!.value = element
-            }
-            var currentNode = head!!.next
-            var counter = 0
-            while(currentNode != null){
-                if(counter == index){
-                    infoToSave = currentNode.value
-                    currentNode.value = element
-                }
-                currentNode = currentNode.next
-                counter++
-            }
-        }
+    override fun set(index: Int, element: E): E {
+        val node = nodeAt(index)
+            ?: throw IndexOutOfBoundsException("Index: $index, Size: $size")
+        val old = node.value
+        node.value = element
+        return old
     }
 
-    fun add (index : Int, element : E) : Boolean{
-        if(head != null){
-            val newNode : Node<E> = Node(element)
-            if(index == 0){
-                newNode.next = head
-            }
-            var previousNode = head
-            var currentNode = head!!.next
-            var counter = 0
-            while(currentNode != null){
-                if(counter == index){
-                    previousNode!!.next = newNode
-                    newNode.next = currentNode
-                }
-                previousNode = currentNode
-                currentNode = currentNode.next
-                counter++
-            }
+    override fun add(index: Int, element: E) {
+        if (index < 0 || index > size) {
+            throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
-        return false
+        val newNode = Node(element)
+        if (index == 0) {
+            newNode.next = head
+            head = newNode
+            return
+        }
+        val previous = nodeAt(index - 1)!!
+        newNode.next = previous.next
+        previous.next = newNode
     }
 
-    fun indexOf(e: E): Int {
-        var aux = head
-        var index = 0
-        while (aux != null) {
-            if (aux.value == e) {
-                return index
-            }
-            aux = aux.next
-            index++
+    override fun removeAt(index: Int): E {
+        if (head == null || index < 0 || index >= size) {
+            throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
-        return -1
+        if (index == 0) {
+            val old = head!!.value
+            head = head!!.next
+            return old
+        }
+        val previous = nodeAt(index - 1)!!
+        val target = previous.next!!
+        previous.next = target.next
+        return target.value
     }
 
-    fun retainAll(c: Collection<E>): Boolean {
+    override fun indexOf(element: E): Int {
+        return nodeSequence().indexOfFirst { it.value == element }
+    }
+
+    override fun lastIndexOf(element: E): Int {
+        var last = -1
+        nodeSequence().forEachIndexed { i, node ->
+            if (node.value == element) last = i
+        }
+        return last
+    }
+
+    override fun retainAll(elements: Collection<E>): Boolean {
         var result = false
         var previous: Node<E>? = null
         var current = head
         while (current != null) {
-            if (!c.contains(current.value)) {
+            if (!elements.contains(current.value)) {
                 result = true
                 if (previous == null) {
                     head = current.next
@@ -261,23 +172,41 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
         return result
     }
 
-    fun listIterator(): MutableListIterator<E> {
-        return listIterator(0)
+    override fun removeAll(elements: Collection<E>): Boolean {
+        var result = false
+        var previous: Node<E>? = null
+        var current = head
+        while (current != null) {
+            if (elements.contains(current.value)) {
+                result = true
+                if (previous == null) {
+                    head = current.next
+                } else {
+                    previous.next = current.next
+                }
+            } else {
+                previous = current
+            }
+            current = current.next
+        }
+        return result
     }
 
-    fun listIterator(index: Int): MutableListIterator<E> {
-        if (index < 0 || index > size()) {
-            throw IndexOutOfBoundsException()
+    override fun listIterator(): MutableListIterator<E> = listIterator(0)
+
+    override fun listIterator(index: Int): MutableListIterator<E> {
+        if (index < 0 || index > size) {
+            throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
         return object : MutableListIterator<E> {
             var currentIndex = index
             var lastReturnedIndex = -1
 
-            override fun hasNext(): Boolean = currentIndex < size()
+            override fun hasNext(): Boolean = currentIndex < size
 
             override fun next(): E {
                 if (!hasNext()) throw NoSuchElementException()
-                val value = get(currentIndex)!!
+                val value = get(currentIndex)
                 lastReturnedIndex = currentIndex
                 currentIndex++
                 return value
@@ -289,7 +218,7 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
                 if (!hasPrevious()) throw NoSuchElementException()
                 currentIndex--
                 lastReturnedIndex = currentIndex
-                return get(currentIndex)!!
+                return get(currentIndex)
             }
 
             override fun nextIndex(): Int = currentIndex
@@ -298,7 +227,7 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
 
             override fun remove() {
                 if (lastReturnedIndex == -1) throw IllegalStateException()
-                this@SimpleList.remove(lastReturnedIndex)
+                this@SimpleList.removeAt(lastReturnedIndex)
                 if (lastReturnedIndex < currentIndex) currentIndex--
                 lastReturnedIndex = -1
             }
@@ -316,50 +245,18 @@ class SimpleList<E>(var head : Node<E>? = null) : Collection<E> {
         }
     }
 
-
-
-
-
+    override fun subList(fromIndex: Int, toIndex: Int): MutableList<E> {
+        if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
+            throw IndexOutOfBoundsException("fromIndex: $fromIndex, toIndex: $toIndex, Size: $size")
         }
-        return false
+        val result = SimpleList<E>()
+        for (i in fromIndex until toIndex) {
+            result.add(get(i))
+        }
+        return result
     }
 
-    fun lastIndexOf(o : Any) : Int{
-        var counter = 0
-        var last = 0
-        while(counter < size()){
-            if(get(counter).value == o){
-                last = counter
-            }
-        }
-        return last
+    override fun toString(): String {
+        return nodeSequence().joinToString(prefix = "[", postfix = "]") { it.value.toString() }
     }
-
-    fun removeAll(c : Collection<E>) : Boolean{
-        var auxList : SimpleList
-        var aux = head
-        if(containsAll(c)){
-            while(aux != null){
-                if (!c.contains(aux)){
-                    auxList.add(aux)
-                }
-                aux = aux.next
-            }
-            clear()
-            addAll(auxList)
-            return true
-        }
-        return false
-    }
-
-    fun subList (int beginning, end : Int) : SimpleList<E>{
-        var auxList : SimpleList
-        for(int i = beginnig; i < end - 1; i++){
-            auxList.add(get(i))
-        }
-        return auxList
-    }
-
-
-
 }
